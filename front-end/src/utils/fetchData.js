@@ -21,6 +21,13 @@ export const putDataAPI = async (url, put, token) => {
     return res;
 }
 
+export const patchDataAPI = async (url, post, token) => {
+    const res = await axios.patch(`/api/${url}`, post, {
+        headers: { Authorization: token}
+    })
+    return res;
+}
+
 export const deleteDataAPI = async (url, token) => {
     const res = await axios.delete(`/api/${url}`, {
         headers: { Authorization: token}

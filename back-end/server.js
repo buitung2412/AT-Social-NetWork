@@ -22,6 +22,7 @@ app.use(cookieParser());
 
 //Routes
 app.use('/api', require('./routes/authRouter'))
+app.use('/api', require('./routes/userRouter'))
 
 const URI = process.env.DB_URI
 

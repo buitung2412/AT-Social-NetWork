@@ -1,17 +1,17 @@
-import React, { useState, useEffect }  from 'react'
+import React from 'react'
 import { Link, useLocation} from 'react-router-dom'
 import { useSelector, useDispatch} from 'react-redux'
-import { logout } from '../redux/actions/authAction'
-import { GLOBALTYPES } from '../redux/actions/globalTypes'
-import Avatar from './alert/Avatar'
+import { logout } from '../../redux/actions/authAction'
+import { GLOBALTYPES } from '../../redux/actions/globalTypes'
+import Avatar from '../alert/Avatar'
 
-const Header = () => {
+const Menu = () => {
 
   const navLinks = [
     { label: 'Home', icon: 'home', path: '/' },
-    { label: 'Message', icon: 'near_me', path: '/message' },
+    { label: 'Message', icon: 'message', path: '/message' },
     { label: 'Discover', icon: 'explore', path: '/discover' },
-    { label: 'Notify', icon: 'favorite', path: '/notify' }
+    { label: 'Notify', icon: 'favorite_border', path: '/notify' }
   ]
 
   const { auth, theme } = useSelector(state => state)
@@ -24,18 +24,7 @@ const Header = () => {
   }
 
   return (
-
-      <nav className="navbar navbar-expand-lg navbar-light bg-light 
-      justify-content-between align-middle">
-        
-        <Link to="/">
-          <h1 className='navbar-brand text-uppercase p-0 m-0'> 
-          AT-Social Network
-          </h1>
-
-        </Link>
-
-        <div className="menu">
+    <div className="menu">
           <ul className="navbar-nav flex-row">
             
             {
@@ -52,7 +41,7 @@ const Header = () => {
             <li className="nav-item dropdown">
               <span className="nav-link dropdown-toggle" id="navbarDropdown" 
               role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <Avatar src={auth.user.avatar} />
+                  <Avatar src={auth.user.avatar} size="medium-avatar" />
               </span>
               <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                 
@@ -78,8 +67,7 @@ const Header = () => {
           </ul>
 
         </div>
-      </nav>
   )
 }
 
-export default Header
+export default Menu
