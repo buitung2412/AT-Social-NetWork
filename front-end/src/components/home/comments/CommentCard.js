@@ -79,7 +79,11 @@ const CommentCard =({children, comment, post, commentId}) => {
             
             </Link>
             <div className="comment_content">
-                <div className="flex-fill">
+                <div className="flex-fill"
+                style={{
+                    filter: theme ? 'invert(1)' : 'invert(0)',
+                    color: theme ? 'white' : '#111',
+                }}>
 
                     {
                         onEdit 

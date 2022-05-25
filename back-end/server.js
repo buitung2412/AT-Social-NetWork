@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser');
 
 const SocketServer = require('./socketServer')
 
+const { ExpressPeerServer } = require('peer')
 
 const app = express ();
 
@@ -30,12 +31,20 @@ io.on('connection', socket => {
     SocketServer(socket)
 })
 
+// Create peer sever
+
+ExpressPeerServer(http, { path: '/' })
+
 
 //Routes
 app.use('/api', require('./routes/authRouter'))
 app.use('/api', require('./routes/userRouter'))
 app.use('/api', require('./routes/postRouter'))
 app.use('/api', require('./routes/commentRouter'))
+app.use('/api', require('./routes/notifyRouter'))
+app.use('/api', require('./routes/messageRouter'))
+
+
 
 
 const URI = process.env.DB_URI
@@ -48,9 +57,17 @@ mongoose.connect(URI, {
     console.log(" Connect to MongoDB");
 })
 
+if(process.env.NODE_ENV === 'production'){
+    app.use(express.static('client/build'))
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
+    })
+}
+
+
 const port = process.env.APP_PORT;
 
-app.listen(port,()=>
+http.listen(port,()=>
 {
     console.log(`Server is running on port ${port}`);
 })

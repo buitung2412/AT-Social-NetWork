@@ -21,20 +21,21 @@ import { GLOBALTYPES } from './redux/actions/globalTypes'
 import SocketClient from './SocketClient'
 
 import { getNotifies } from './redux/actions/notifyAction';
+import CallModal from './components/message/CallModal';
+import Peer from 'peerjs'
+
 
 function App() {
 
-  const { auth, status, modal } = useSelector(state => state)
+  const { auth, status, modal, call } = useSelector(state => state)
   const dispatch = useDispatch()
 
   useEffect(() => {
     dispatch(refreshToken())
 
     const socket = io()
-
     dispatch({type: GLOBALTYPES.SOCKET, payload: socket})
     return () => socket.close()
-
   },[dispatch])
 
   useEffect(() => {
@@ -45,6 +46,27 @@ function App() {
 
     }
   }, [dispatch, auth.token])
+
+  useEffect(() => {
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notification");
+    }
+    else if (Notification.permission === "granted") {}
+    else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function (permission) {
+        if (permission === "granted") {}
+      });
+    }
+  },[])
+
+  useEffect(() => {
+    const newPeer = new Peer(undefined, {
+      path: '/', secure: true
+    })
+    
+    dispatch({ type: GLOBALTYPES.PEER, payload: newPeer })
+  },[dispatch])
+
 
   return (
     <Router>
@@ -58,6 +80,7 @@ function App() {
           {auth.token && <Header />}
           {status && <StatusModal />}
           {auth.token && <SocketClient />}
+          {call && <CallModal />}
 
           <Routes>
             <Route exact path="/" element={auth.token ? <Home /> : <Login />} />

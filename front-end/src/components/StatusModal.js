@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { GLOBALTYPES } from '../redux/actions/globalTypes'
-import { createPost } from '../redux/actions/postAction'
-import { updatePost } from '../redux/actions/postAction'
+import { createPost, updatePost } from '../redux/actions/postAction'
+import Icons from './Icons'
+import { imageShow, videoShow } from '../utils/mediaShow'
 
 const StatusModal = () => {
-
-    const { auth, theme, status } = useSelector(state=> state)
+    const { auth, theme, status, socket } = useSelector(state => state)
     const dispatch = useDispatch()
 
     const [content, setContent] = useState('')
@@ -56,11 +56,6 @@ const StatusModal = () => {
         }
     }
 
-    const handleStopStream = () => {
-        tracks.stop()
-        setStream(false)
-    }
-
     const handleCapture = () => {
         const width = videoRef.current.clientWidth;
         const height = videoRef.current.clientHeight;
@@ -74,6 +69,11 @@ const StatusModal = () => {
         setImages([...images, {camera: URL}])
     }
 
+    const handleStopStream = () => {
+        tracks.stop()
+        setStream(false)
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault()
         if(images.length === 0)
@@ -84,8 +84,9 @@ const StatusModal = () => {
         if(status.onEdit){
             dispatch(updatePost({content, images, auth, status}))
         }else{
-            dispatch(createPost({content, images, auth}))
-        }        
+            dispatch(createPost({content, images, auth, socket}))
+        }
+        
 
         setContent('')
         setImages([])
@@ -100,64 +101,65 @@ const StatusModal = () => {
         }
     },[status])
 
-  return (
-    <div className='status_modal'>
-        <form onSubmit={handleSubmit}>
-            <div className='status_header'>
-                <h5 className='m-0'>Create Post</h5>
-                <span onClick={() => dispatch({
-                    type: GLOBALTYPES.STATUS, payload: false
-                })}>
-                    &times;
-                </span>
 
-            </div>
+   
 
-            <div className='status_body'>
-                <textarea name='content'
-                placeholder={`${auth.user.fullname}, what are you thinking ? `} 
-                onChange={e => setContent(e.target.value)} 
-                style={{
-                    filter: theme ? 'invert(1)' : 'invert(0)',
-                    color: theme ? 'white' : '#111',
-                    background: theme ? 'rgba(0,0,0,.03)' : '',
-                }}
-                />
-
-                <div className="d-flex">
-                    <div className="flex-fill"></div>
-                    {/* <Icons setContent={setContent} content={content} theme={theme} /> */}
+    return (
+        <div className="status_modal">
+            <form onSubmit={handleSubmit}>
+                <div className="status_header">
+                    <h5 className="m-0">Create Post</h5>
+                    <span onClick={() => dispatch({
+                        type: GLOBALTYPES.STATUS, payload: false
+                    })}>
+                        &times;
+                    </span>
                 </div>
 
-                <div className="show_images">
+                <div className="status_body">
+                    <textarea name="content" value={content}
+                    placeholder={`${auth.user.username}, what are you thinking?`}
+                    onChange={e => setContent(e.target.value)}
+                    style={{
+                        filter: theme ? 'invert(1)' : 'invert(0)',
+                        color: theme ? 'white' : '#111',
+                        background: theme ? 'rgba(0,0,0,.03)' : '',
+                    }} />
+
+                    <div className="d-flex">
+                        <div className="flex-fill"></div>
+                        <Icons setContent={setContent} content={content} theme={theme} />
+                    </div>
+
+                    <div className="show_images">
                         {
                             images.map((img, index) => (
                                 <div key={index} id="file_img">
                                     {
-                                        // img.camera ? imageShow(img.camera, theme)
-                                        // : img.url
-                                        //     ?<>
-                                        //         {
-                                        //             img.url.match(/video/i)
-                                        //             ? videoShow(img.url, theme) 
-                                        //             : imageShow(img.url, theme)
-                                        //         }
-                                        //     </>
-                                        //     :<>
-                                        //         {
-                                        //             img.type.match(/video/i)
-                                        //             ? videoShow(URL.createObjectURL(img), theme) 
-                                        //             : imageShow(URL.createObjectURL(img), theme)
-                                        //         }
-                                        //     </>
+                                        img.camera ? imageShow(img.camera, theme)
+                                        : img.url
+                                            ?<>
+                                                {
+                                                    img.url.match(/video/i)
+                                                    ? videoShow(img.url, theme) 
+                                                    : imageShow(img.url, theme)
+                                                }
+                                            </>
+                                            :<>
+                                                {
+                                                    img.type.match(/video/i)
+                                                    ? videoShow(URL.createObjectURL(img), theme) 
+                                                    : imageShow(URL.createObjectURL(img), theme)
+                                                }
+                                            </>
                                     }
                                     <span onClick={() => deleteImages(index)}>&times;</span>
                                 </div>
                             ))
                         }
-                </div>
+                    </div>
 
-                {
+                    {
                         stream && 
                         <div className="stream position-relative">
                             <video autoPlay muted ref={videoRef} width="100%" height="100%"
@@ -166,10 +168,9 @@ const StatusModal = () => {
                             <span onClick={handleStopStream}>&times;</span>
                             <canvas ref={refCanvas} style={{display: 'none'}} />
                         </div>
-                }
+                    }
 
-                <div className='input_images' onClick={handleStream}>
-                    
+                    <div className="input_images">
                         {
                             stream 
                             ? <i className="fas fa-camera" onClick={handleCapture} />
@@ -183,22 +184,20 @@ const StatusModal = () => {
                                 </div>
                             </>
                         }
+                        
+                    </div>
 
                 </div>
 
-            </div>
-
-            <div className="status_footer">
+                <div className="status_footer">
                     <button className="btn btn-secondary w-100" type="submit">
                         Post
                     </button>
-            </div>
+                </div>
 
-
-        </form>
-
-    </div>
-  )
+            </form>
+        </div>
+    )
 }
 
 export default StatusModal
