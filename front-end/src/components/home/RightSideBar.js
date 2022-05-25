@@ -49,7 +49,7 @@ const RightSideBar = () => {
             </small>
 
             <small>
-                &copy; 2022 AT-SOCIAL NETWORK FROM AT
+                &copy; 2022 AT-SOCIAL NETWORK FROM ANH TUNG
             </small>
         </div>
 
